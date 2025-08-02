@@ -93,9 +93,9 @@ def main():
 
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
-        .with_credentials(creds) \
-        .with_region(SimpleRegion(REGION_NAME)) \
-        .build()
+        。with_credentials(creds) \
+        。with_region(SimpleRegion(REGION_NAME)) \
+        。build()
 
     best_ips = get_best_ips(MAX_RECORDS)
     if not best_ips:
@@ -115,7 +115,7 @@ def main():
         logging.error(f"获取记录失败: {e}")
         return
 
-    default_record = 无
+    default_record = None
     for r in records:
         line = getattr(r, "line", "") or getattr(r, "line_id", "")
         if line in ("默认", "default", "default_view", ""):
