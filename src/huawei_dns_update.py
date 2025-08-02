@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# 依赖1. huaweicloudsdkcore  2. huaweicloudsdkdns
+# 环境变量说明（供 Docker 使用）
+# 环境变量	含义说明
+# HW_AK	华为云 Access Key
+# HW_SK	华为云 Secret Key
+# HW_PROJECT_ID	项目 ID（在控制台查看）
+# HW_ZONE_ID	DNS 区域 ID（Zone ID）
 
 import os
 import time
