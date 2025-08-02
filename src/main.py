@@ -70,10 +70,10 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
 
 def main() -> None:
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    CONFIG_DIR = os.path.join(PROJECT_ROOT, 'config')
-    CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, 'config.ini')
-    LOG_FILE_PATH = os.path.join(PROJECT_ROOT, 'app.log')
-    STATIC_DIR = os.path.join(PROJECT_ROOT, 'static')
+    CONFIG_DIR = os.path。join(PROJECT_ROOT, 'config')
+    CONFIG_FILE_PATH = os.path。join(CONFIG_DIR, 'config.ini')
+    LOG_FILE_PATH = os.path。join(PROJECT_ROOT, 'app.log')
+    STATIC_DIR = os.path。join(PROJECT_ROOT, 'static')
     TEMPLATE_DIR = os.path.join(PROJECT_ROOT, 'templates')
 
     os.makedirs(CONFIG_DIR, exist_ok=True)
@@ -91,7 +91,7 @@ def main() -> None:
         }
         config['OpenWRT'] = {
             'enabled': 'false',
-            'host': '192.168.1.1',
+            'host': '192.168.1.1'，
             'port': '22',
             'username': 'root',
             'password': 'your_password',
@@ -115,7 +115,7 @@ def main() -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
 
-    for handler 在 root_logger.handlers[:]:
+    for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
 
     file_handler = logging.FileHandler(LOG_FILE_PATH, mode='w', encoding='utf-8')
@@ -168,3 +168,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
