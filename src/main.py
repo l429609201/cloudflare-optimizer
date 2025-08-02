@@ -51,7 +51,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
                 if result.stderr:
                     logging.error(f"[华为DNS更新] 错误输出:\n{result.stderr.strip()}")
                 else:
-                    logging.debug("[华为DNS更新] 无错误输出。")
+                    logging.debug("[华为DNS更新] 无错误输出.")
                 logging.info("华为DNS 更新任务完成")
             except Exception as e:
                 logging.error(f"华为DNS更新任务执行异常: {e}")
@@ -71,15 +71,15 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
 def main() -> None:
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     CONFIG_DIR = os.path.join(PROJECT_ROOT, 'config')
-    CONFIG_FILE_PATH = os.path。join(CONFIG_DIR, 'config.ini')
-    LOG_FILE_PATH = os.path。join(PROJECT_ROOT, 'app.log')
-    STATIC_DIR = os.path。join(PROJECT_ROOT, 'static')
+    CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, 'config.ini')
+    LOG_FILE_PATH = os.path.join(PROJECT_ROOT, 'app.log')
+    STATIC_DIR = os.path.join(PROJECT_ROOT, 'static')
     TEMPLATE_DIR = os.path.join(PROJECT_ROOT, 'templates')
 
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
     if not os.path.exists(CONFIG_FILE_PATH):
-        logging.warning(f"配置文件未找到: {CONFIG_FILE_PATH}，将使用默认配置并创建文件。")
+        logging.warning(f"配置文件未找到: {CONFIG_FILE_PATH}，将使用默认配置并创建文件.")
         config = configparser.ConfigParser()
         config['cfst'] = {
             'params': '-p 0 -o result.csv -url https://cf.xiu2.xyz/url -dn 10 -t 2 -dd '
@@ -135,12 +135,12 @@ def main() -> None:
             logging.info("启动检查: result.csv 不存在，将立即执行一次IP优选...")
             optimizer.run_speed_test()
         else:
-            logging.info(f"启动检查: 发现已存在的 result.csv，将进行解析和心跳测试。")
+            logging.info(f"启动检查: 发现已存在的 result.csv，将进行解析和心跳测试.")
             optimizer.load_results_from_file()
             if app_state.best_ip:
                 check_best_ip(optimizer)
             else:
-                logging.warning("启动检查: result.csv 解析失败或为空，将执行一次新的IP优选。")
+                logging.warning("启动检查: result.csv 解析失败或为空，将执行一次新的IP优选.")
                 optimizer.run_speed_test()
 
     initial_run_thread = threading.Thread(target=startup_check, name="StartupCheckThread")
@@ -168,5 +168,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
