@@ -93,9 +93,9 @@ def main():
 
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
-        。with_credentials(creds) \
-        。with_region(SimpleRegion(REGION_NAME)) \
-        。build()
+        .with_credentials(creds) \
+        .with_region(SimpleRegion(REGION_NAME)) \
+        .build()
 
     best_ips = get_best_ips(MAX_RECORDS)
     if not best_ips:
