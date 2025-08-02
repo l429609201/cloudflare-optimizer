@@ -35,22 +35,20 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     )
     logging.info(f"已添加心跳检测任务，Cron: {heartbeat_cron}")
 
-    dns_update_cron = config.get('Scheduler', 'dns_update_cron', fallback=None)
-    if dns_update_cron:
-        def run_huawei_dns_update():
-            try:
-                result = subprocess.run(
-                    ["python3", "src/huawei_dns_update.py"],
-                    capture_output=True,
-                    text=True,
-                    check=False
-                )
-                if result.stdout:
-                    logging.info(f"华为DNS更新输出:\n{result.stdout}")
-                if result.stderr:
-                    logging.error(f"华为DNS更新错误输出:\n{result.stderr}")
-            except Exception as e:
-                logging.error(f"华为DNS更新任务执行异常: {e}")
+def run_huawei_dns_update():
+    try:
+        result = subprocess.run(
+            ["python3"，"src/huawei_dns_update.py"],
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if result.stdout and result.stdout.strip():
+            logging.info(f"华为DNS 更新输出:\n{result.stdout.strip()}")
+        if result.stderr and result.stderr.strip():
+            logging.error(f"华为DNS 更新错误输出:\n{result.stderr.strip()}")
+    except Exception as e:
+        logging.error(f"华为DNS更新任务执行异常: {e}")
 
         scheduler.add_job(
             run_huawei_dns_update,
@@ -58,7 +56,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
             id='job_huawei_dns_update',
             name='华为DNS定时更新'
         )
-        logging.info(f"已添加华为DNS更新任务，Cron: {dns_update_cron}")
+        logging.info(f"已添加华为DNS更新任务,Cron: {dns_update_cron}")
 
     scheduler.start()
     return scheduler
@@ -164,3 +162,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
