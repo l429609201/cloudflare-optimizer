@@ -45,7 +45,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
                     text=True,
                     check=False
                 )
-                if result.stdout 和 result.stdout。strip():
+                if result.stdout 和 result.stdout.strip():
                     logging.info(f"华为DNS更新输出:\n{result.stdout}")
                 if result.stderr 和 result.stderr.strip():
                     logging.error(f"华为DNS更新错误输出:\n{result.stderr}")
@@ -164,6 +164,7 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
 
