@@ -23,7 +23,7 @@ SK = os.getenv("HW_SK")
 PROJECT_ID = os.getenv("HW_PROJECT_ID")
 REGION_NAME = "cn-east-3"
 ZONE_ID = os.getenv("HW_ZONE_ID")
-DOMAIN_NAME = "cdn.akk.pp.ua."
+DOMAIN_NAME = os.getenv("HW_DOMAIN_NAME")
 RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 10
@@ -59,8 +59,8 @@ def main():
 
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
-        .with_credentials(creds) \
-        .with_region(SimpleRegion(REGION_NAME)) \
+        。with_credentials(creds) \
+        。with_region(SimpleRegion(REGION_NAME)) \
         .build()
 
     best_ips = get_best_ips(MAX_RECORDS)
