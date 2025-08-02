@@ -32,7 +32,7 @@ DOMAIN_NAME = "cdn.akk.pp.ua."
 RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 10
-API_IPS_URL = "https://localhost:6788/api/results"
+API_IPS_URL = "http://0.0.0.0:6788/api/results"
 
 logging.basicConfig(
     filename="huawei_dns_sdk.log",
