@@ -45,9 +45,9 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
                     text=True,
                     check=False
                 )
-                if result.stdout 和 result.stdout.strip():
+                if result.stdout and result.stdout.strip():
                     logging.info(f"华为DNS更新输出:\n{result.stdout}")
-                if result.stderr 和 result.stderr.strip():
+                if result.stderr and result.stderr.strip():
                     logging.error(f"华为DNS更新错误输出:\n{result.stderr}")
             except Exception as e:
                 logging.error(f"华为DNS更新任务执行异常: {e}")
@@ -123,7 +123,6 @@ def main() -> None:
     root_logger.addHandler(console_handler)
 
     optimizer = CloudflareOptimizer(config, config_dir=CONFIG_DIR)
-
     optimizer.download_and_extract_tool()
 
     def startup_check():
@@ -131,7 +130,7 @@ def main() -> None:
             logging.info("启动检查: result.csv 不存在，将立即执行一次IP优选...")
             optimizer.run_speed_test()
         else:
-            logging.info(f"启动检查: 发现已存在的 result.csv，将进行解析和心跳测试。")
+            logging.info("启动检查: 发现已存在的 result.csv，将进行解析和心跳测试。")
             optimizer.load_results_from_file()
             if app_state.best_ip:
                 check_best_ip(optimizer)
@@ -143,7 +142,6 @@ def main() -> None:
     initial_run_thread.start()
 
     app = create_app(optimizer, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
-
     scheduler = setup_scheduler(optimizer, config)
 
     app.config['CONFIG'] = config
@@ -164,10 +162,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
