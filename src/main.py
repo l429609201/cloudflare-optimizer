@@ -79,8 +79,8 @@ def main() -> None:
             'params': '-p 0 -o result.csv -url https://cf.xiu2.xyz/url -dn 10 -t 2 -dd '
         }
         config['Scheduler'] = {
-          # 'heartbeat_cron': '*/5 * * * *',
             'optimize_cron': '*/15 * * * *',
+            'heartbeat_cron': '*/5 * * * *',
             'dns_update_cron': '*/8 * * * *'
         }
         config['OpenWRT'] = {
@@ -162,6 +162,7 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
 
