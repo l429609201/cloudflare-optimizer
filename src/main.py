@@ -70,7 +70,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
 
 def main() -> None:
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    CONFIG_DIR = os.path。join(PROJECT_ROOT, 'config')
+    CONFIG_DIR = os.path.join(PROJECT_ROOT, 'config')
     CONFIG_FILE_PATH = os.path。join(CONFIG_DIR, 'config.ini')
     LOG_FILE_PATH = os.path。join(PROJECT_ROOT, 'app.log')
     STATIC_DIR = os.path。join(PROJECT_ROOT, 'static')
@@ -168,4 +168,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
