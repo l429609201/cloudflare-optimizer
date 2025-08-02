@@ -5,6 +5,7 @@
 import os
 import time
 import logging
+import configparser
 import requests
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
@@ -17,6 +18,15 @@ from huaweicloudsdkdns.v2.model import (
     UpdateRecordSetReq
 )
 
+# ===== 读取配置 =====
+CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../config/config.ini')
+config = configparser.ConfigParser()
+config.read(CONFIG_FILE, encoding='utf-8')
+
+api_port = config['API'].getint('port', 6788)
+
+API_IPS_URL = f"http://0.0.0.0:{api_port}/api/results"
+
 # ===== 环境变量配置 =====
 AK = os.getenv("HW_AK")
 SK = os.getenv("HW_SK")
@@ -27,7 +37,6 @@ DOMAIN_NAME = os.getenv("HW_DOMAIN_NAME")
 RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 10
-API_IPS_URL = "http://0.0.0.0:6788/api/results"
 
 # ===== 日志配置（输出到 stdout）=====
 logging.basicConfig(
@@ -60,7 +69,7 @@ def main():
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
         。with_credentials(creds) \
-        。with_region(SimpleRegion(REGION_NAME)) \
+        .with_region(SimpleRegion(REGION_NAME)) \
         .build()
 
     best_ips = get_best_ips(MAX_RECORDS)
