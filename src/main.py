@@ -22,7 +22,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
     
     # 添加 fallback 增加健壮性
-    optimize_cron = config.get('Scheduler'， 'optimize_cron', fallback='0 */4 * * *')
+    optimize_cron = config.get('Scheduler', 'optimize_cron', fallback='0 */4 * * *')
     scheduler.add_job(
         optimizer.run_speed_test,
         trigger=CronTrigger.from_crontab(optimize_cron),
@@ -191,6 +191,7 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
 
