@@ -11,10 +11,10 @@ from waitress import serve
 from apscheduler.triggers.cron import CronTrigger 
 
 # 使用相对导入，因为所有 .py 文件都在 src 包中
-from .optimizer import CloudflareOptimizer
-from .heartbeat import check_best_ip
-from .state import app_state
-from .api import create_app  # 导入新的 api 模块
+from 。optimizer import CloudflareOptimizer
+from 。heartbeat import check_best_ip
+from 。state import app_state
+from 。api import create_app  # 导入新的 api 模块
 
 
 def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigParser) -> BackgroundScheduler:
@@ -22,7 +22,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
     
     # 添加 fallback 增加健壮性
-    optimize_cron = config.get('Scheduler', 'optimize_cron', fallback='0 */4 * * *')
+    optimize_cron = config.get('Scheduler'， 'optimize_cron', fallback='0 */4 * * *')
     scheduler.add_job(
         optimizer.run_speed_test,
         trigger=CronTrigger.from_crontab(optimize_cron),
@@ -32,7 +32,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     logging.info(f"已添加定时优选任务，Cron: {optimize_cron}")
 
     # 添加 fallback 增加健壮性
-    heartbeat_cron = config.get('Scheduler', 'heartbeat_cron', fallback='*/5 * * * *')
+    heartbeat_cron = config.get('Scheduler'， 'heartbeat_cron', fallback='*/5 * * * *')
     scheduler.add_job(
         lambda: check_best_ip(optimizer),
         trigger=CronTrigger.from_crontab(heartbeat_cron),
@@ -42,13 +42,23 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     logging.info(f"已添加心跳检测任务，Cron: {heartbeat_cron}")
     
     # 新增：华为DNS更新任务
-    dns_update_cron = config.get('Scheduler', 'dns_update_cron', fallback=None)
+dns_update_cron = config.get('Scheduler', 'dns_update_cron', fallback=None)
     if dns_update_cron:
         def run_huawei_dns_update():
-            # 这里执行你放在 src 目录的脚本，比如 src/huawei_dns_update.py
-            # 也可以改成绝对路径，或其它执行方式
-            subprocess.run(["python3", "src/huawei_dns_update.py"], check=False)
-        
+            try:
+                result = subprocess.run(
+                    ["python3", "src/huawei_dns_update.py"]，
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if result.stdout:
+                    logging.info(f"华为DNS更新输出:\n{result.stdout}")
+                if result.stderr:
+                    logging.error(f"华为DNS更新错误输出:\n{result.stderr}")
+            except Exception as e:
+                logging.error(f"华为DNS更新任务执行异常: {e}")
+
         scheduler.add_job(
             run_huawei_dns_update,
             trigger=CronTrigger.from_crontab(dns_update_cron),
@@ -181,4 +191,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
