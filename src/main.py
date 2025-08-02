@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 import threading
-import subprocess
+import subprocess  # 必须导入
 from apscheduler.schedulers.background import BackgroundScheduler
 from waitress import serve
 from apscheduler.triggers.cron import CronTrigger
@@ -39,16 +39,20 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     if dns_update_cron:
         def run_huawei_dns_update():
             try:
+                logging.info("华为DNS 更新任务启动")
                 result = subprocess.run(
                     ["python3", "src/huawei_dns_update.py"],
                     capture_output=True,
                     text=True,
                     check=False
                 )
-                if result.stdout and result.stdout.strip():
-                    logging.info(f"华为DNS更新输出:\n{result.stdout}")
-                if result.stderr and result.stderr.strip():
-                    logging.error(f"华为DNS更新错误输出:\n{result.stderr}")
+                if result.stdout:
+                    logging.info(f"[华为DNS更新] 标准输出:\n{result.stdout.strip()}")
+                if result.stderr:
+                    logging.error(f"[华为DNS更新] 错误输出:\n{result.stderr.strip()}")
+                else:
+                    logging.debug("[华为DNS更新] 无错误输出。")
+                logging.info("华为DNS 更新任务完成")
             except Exception as e:
                 logging.error(f"华为DNS更新任务执行异常: {e}")
 
@@ -111,7 +115,7 @@ def main() -> None:
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
 
-    for handler in root_logger.handlers[:]:
+    for handler 在 root_logger.handlers[:]:
         root_logger.removeHandler(handler)
 
     file_handler = logging.FileHandler(LOG_FILE_PATH, mode='w', encoding='utf-8')
@@ -123,6 +127,7 @@ def main() -> None:
     root_logger.addHandler(console_handler)
 
     optimizer = CloudflareOptimizer(config, config_dir=CONFIG_DIR)
+
     optimizer.download_and_extract_tool()
 
     def startup_check():
@@ -130,7 +135,7 @@ def main() -> None:
             logging.info("启动检查: result.csv 不存在，将立即执行一次IP优选...")
             optimizer.run_speed_test()
         else:
-            logging.info("启动检查: 发现已存在的 result.csv，将进行解析和心跳测试。")
+            logging.info(f"启动检查: 发现已存在的 result.csv，将进行解析和心跳测试。")
             optimizer.load_results_from_file()
             if app_state.best_ip:
                 check_best_ip(optimizer)
@@ -142,6 +147,7 @@ def main() -> None:
     initial_run_thread.start()
 
     app = create_app(optimizer, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
+
     scheduler = setup_scheduler(optimizer, config)
 
     app.config['CONFIG'] = config
