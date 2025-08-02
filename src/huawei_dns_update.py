@@ -56,7 +56,7 @@ class SimpleRegion:
 def send_telegram_message(msg: str):
     if not TG_BOT_TOKEN or not TG_USER_ID:
         return
-    url = f"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendMessage"
+    url = f"https://telegram.api.boosoyz.nyc.mn/bot{TG_BOT_TOKEN}/sendMessage"
     try:
         resp = requests.post(url, data={
             "chat_id": TG_USER_ID,
