@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import threading
+import subprocess
 from apscheduler.schedulers.background import BackgroundScheduler
 from waitress import serve
 from apscheduler.triggers.cron import CronTrigger 
@@ -180,3 +181,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
