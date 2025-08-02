@@ -38,7 +38,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
 def run_huawei_dns_update():
     try:
         result = subprocess.run(
-            ["python3"， "src/huawei_dns_update.py"],
+            ["python3", "src/huawei_dns_update.py"],
             capture_output=True,
             text=True,
             check=False
@@ -162,4 +162,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
