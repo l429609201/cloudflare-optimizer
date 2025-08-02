@@ -80,6 +80,7 @@ def main() -> None:
         }
         config['Scheduler'] = {
             'optimize_cron': '*/15 * * * *',
+          # 'heartbeat_cron': '*/5 * * * *',
             'dns_update_cron': '*/8 * * * *'
         }
         config['OpenWRT'] = {
@@ -161,6 +162,7 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
 
