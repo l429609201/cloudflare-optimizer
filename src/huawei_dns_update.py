@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # 环境变量说明：HW_AK, HW_SK, HW_PROJECT_ID, HW_ZONE_ID, HW_DOMAIN_NAME（必须带末尾点号）
+# TG_BOT_TOKEN, TG_USER_ID（可选，用于通知）
 
 import os
 import time
@@ -37,6 +38,10 @@ RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 5
 
+# Telegram 推送配置
+TG_BOT_TOKEN = os.getenv("TG_BOT_TOKEN")
+TG_USER_ID = os.getenv("TG_USER_ID")
+
 # ===== 日志配置（输出到 stdout）=====
 logging.basicConfig(
     level=logging.INFO,
@@ -48,6 +53,23 @@ class SimpleRegion:
         self.name = name
         self.id = name
         self.endpoints = [f"https://dns.{name}.myhuaweicloud.com"]
+
+def send_telegram_message(msg: str):
+    if not TG_BOT_TOKEN or not TG_USER_ID:
+        return
+    url = f"https://api.telegram.org/bot{TG_BOT_TOKEN}/sendMessage"
+    try:
+        resp = requests.post(url, data={
+            "chat_id": TG_USER_ID,
+            "text": msg,
+            "parse_mode": "Markdown"
+        }, timeout=10)
+        if resp.ok:
+            logging.info("Telegram 通知发送成功")
+        else:
+            logging.warning(f"Telegram 通知发送失败: {resp.text}")
+    except Exception as e:
+        logging.error(f"Telegram 推送异常: {e}")
 
 def get_best_ips(limit=50):
     try:
@@ -89,10 +111,10 @@ def main():
         logging.error(f"获取记录失败: {e}")
         return
 
-    default_record = None
+    default_record = 无
     for r in records:
         line = getattr(r, "line", "") or getattr(r, "line_id", "")
-        if line in ("默认", "default", "default_view", ""):
+        if line 在 ("默认", "default", "default_view", ""):
             default_record = r
             break
 
@@ -112,7 +134,9 @@ def main():
 
             try:
                 client.update_record_set(update_req)
-                logging.info(f"默认线路记录更新成功: {best_ips}")
+                msg = f"✅ [华为DNS] 默认线路记录更新成功:\n{DOMAIN_NAME}\n{best_ips}"
+                logging.info(msg)
+                send_telegram_message(msg)
             except exceptions.ClientRequestException as e:
                 logging.error(f"默认线路记录更新失败: {e}")
         else:
@@ -130,7 +154,9 @@ def main():
 
         try:
             client.create_record_set(create_req)
-            logging.info(f"新增默认线路记录成功: {best_ips}")
+            msg = f"✅ [华为DNS] 新增默认线路记录成功:\n{DOMAIN_NAME}\n{best_ips}"
+            logging.info(msg)
+            send_telegram_message(msg)
         except exceptions.ClientRequestException as e:
             logging.error(f"新增默认线路记录失败: {e}")
 
