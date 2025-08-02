@@ -35,20 +35,24 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     )
     logging.info(f"已添加心跳检测任务，Cron: {heartbeat_cron}")
 
-def run_huawei_dns_update():
-    try:
-        result = subprocess.run(
-            ["python3"，"src/huawei_dns_update.py"],
-            capture_output=True,
-            text=True,
-            check=False
-        )
-        if result.stdout and result.stdout.strip():
-            logging.info(f"华为DNS 更新输出:\n{result.stdout.strip()}")
-        if result.stderr and result.stderr.strip():
-            logging.error(f"华为DNS 更新错误输出:\n{result.stderr.strip()}")
-    except Exception as e:
-        logging.error(f"华为DNS更新任务执行异常: {e}")
+    dns_update_cron = config.get('Scheduler', 'dns_update_cron', fallback=None)
+    if dns_update_cron:
+        def run_huawei_dns_update():
+            try:
+                logging.info("华为DNS 更新任务启动")
+                result = subprocess.run(
+                    ["python3", "src/huawei_dns_update.py"],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if result.stdout and result.stdout.strip():
+                    logging.info(f"华为DNS 更新输出:\n{result.stdout.strip()}")
+                if result.stderr and result.stderr.strip():
+                    logging.error(f"华为DNS 更新错误输出:\n{result.stderr.strip()}")
+                logging.info("华为DNS 更新任务完成")
+            except Exception as e:
+                logging.error(f"华为DNS更新任务执行异常: {e}")
 
         scheduler.add_job(
             run_huawei_dns_update,
@@ -56,7 +60,7 @@ def run_huawei_dns_update():
             id='job_huawei_dns_update',
             name='华为DNS定时更新'
         )
-        logging.info(f"已添加华为DNS更新任务,Cron: {dns_update_cron}")
+        logging.info(f"已添加华为DNS更新任务，Cron: {dns_update_cron}")
 
     scheduler.start()
     return scheduler
@@ -72,9 +76,9 @@ def main() -> None:
 
     os.makedirs(CONFIG_DIR, exist_ok=True)
 
+    config = configparser.ConfigParser()
     if not os.path.exists(CONFIG_FILE_PATH):
         logging.warning(f"配置文件未找到: {CONFIG_FILE_PATH}，将使用默认配置并创建文件。")
-        config = configparser.ConfigParser()
         config['cfst'] = {
             'params': '-p 0 -o result.csv -url https://cf.xiu2.xyz/url -dn 10 -t 2 -dd '
         }
@@ -99,17 +103,21 @@ def main() -> None:
             'proxy': 'https://github.drny168.top/'
         }
         config['API'] = {'port': 6788}
-        with open(CONFIG_FILE_PATH, 'w', encoding='utf-8') as configfile:
-            config.write(configfile)
+        try:
+            with open(CONFIG_FILE_PATH, 'w', encoding='utf-8') as configfile:
+                config.write(configfile)
+        except PermissionError:
+            logging.error(f"写入配置文件失败：权限不足，请确保容器或主机有权限访问 {CONFIG_FILE_PATH}")
+            sys.exit(1)
     else:
-        config = configparser.ConfigParser()
         config.read(CONFIG_FILE_PATH, encoding='utf-8')
 
+    # 日志初始化
     log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
 
-    for handler in root_logger.handlers[:]:
+    for handler 在 root_logger.handlers[:]:
         root_logger.removeHandler(handler)
 
     file_handler = logging.FileHandler(LOG_FILE_PATH, mode='w', encoding='utf-8')
@@ -120,8 +128,8 @@ def main() -> None:
     console_handler.setFormatter(log_formatter)
     root_logger.addHandler(console_handler)
 
+    # 初始化 Optimizer
     optimizer = CloudflareOptimizer(config, config_dir=CONFIG_DIR)
-
     optimizer.download_and_extract_tool()
 
     def startup_check():
@@ -129,17 +137,18 @@ def main() -> None:
             logging.info("启动检查: result.csv 不存在，将立即执行一次IP优选...")
             optimizer.run_speed_test()
         else:
-            logging.info(f"启动检查: 发现已存在的 result.csv，将进行解析和心跳测试。")
+            logging.info("启动检查: 发现 result.csv，尝试解析并检测最优IP状态")
             optimizer.load_results_from_file()
             if app_state.best_ip:
                 check_best_ip(optimizer)
             else:
-                logging.warning("启动检查: result.csv 解析失败或为空，将执行一次新的IP优选。")
+                logging.warning("启动检查: result.csv 无有效IP，将重新优选")
                 optimizer.run_speed_test()
 
     initial_run_thread = threading.Thread(target=startup_check, name="StartupCheckThread")
     initial_run_thread.start()
 
+    # 启动 API 服务
     app = create_app(optimizer, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 
     scheduler = setup_scheduler(optimizer, config)
@@ -149,7 +158,7 @@ def main() -> None:
     app.config['CONFIG_FILE_PATH'] = CONFIG_FILE_PATH
     app.config['LOG_FILE_PATH'] = LOG_FILE_PATH
 
-    api_port = config['API'].getint('port', 6788)
+    api_port = config['API']。getint('port'， 6788)
     logging.info(f"API服务将在 http://0.0.0.0:{api_port} 上启动")
     try:
         serve(app, host='0.0.0.0', port=api_port)
@@ -162,4 +171,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
