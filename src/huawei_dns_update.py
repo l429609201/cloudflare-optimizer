@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# 环境变量说明（供 Docker 使用）
-# 环境变量	含义说明
-# HW_AK	华为云 Access Key
-# HW_SK	华为云 Secret Key
-# HW_PROJECT_ID	项目 ID（在控制台查看）
-# HW_ZONE_ID	DNS 区域 ID（Zone ID）
+# 环境变量说明：HW_AK, HW_SK, HW_PROJECT_ID, HW_ZONE_ID
 
 import os
 import time
@@ -22,7 +17,7 @@ from huaweicloudsdkdns.v2.model import (
     UpdateRecordSetReq
 )
 
-# ===== 配置 =====
+# ===== 环境变量配置 =====
 AK = os.getenv("HW_AK")
 SK = os.getenv("HW_SK")
 PROJECT_ID = os.getenv("HW_PROJECT_ID")
@@ -34,10 +29,10 @@ TTL = 300
 MAX_RECORDS = 10
 API_IPS_URL = "http://0.0.0.0:6788/api/results"
 
+# ===== 日志配置（输出到 stdout）=====
 logging.basicConfig(
-    filename="huawei_dns_sdk.log",
     level=logging.INFO,
-    format="%(asctime)s - %(message)s"
+    format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
 class SimpleRegion:
@@ -54,16 +49,13 @@ def get_best_ips(limit=50):
         ips = [item.get("IP 地址") for item in data if item.get("IP 地址")]
         ips = list(dict.fromkeys(ips))
         logging.info(f"获取优选IP: {ips[:limit]}")
-        print(f"获取优选IP: {ips[:limit]}")
         return ips[:limit]
     except Exception as e:
         logging.error(f"获取优选IP失败: {e}")
-        print(f"获取优选IP失败: {e}")
         return []
 
 def main():
-    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - 脚本开始执行...")
-    logging.info("脚本开始执行")
+    logging.info("华为DNS 更新任务启动")
 
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
@@ -73,7 +65,7 @@ def main():
 
     best_ips = get_best_ips(MAX_RECORDS)
     if not best_ips:
-        print("未获取到优选IP，退出。")
+        logging.warning("未获取到优选IP，跳过更新")
         return
 
     request = ListRecordSetsRequest()
@@ -84,17 +76,15 @@ def main():
     try:
         resp = client.list_record_sets(request)
         records = resp.recordsets
-        print(f"查询到的记录数: {len(records)}")
-        logging.info(f"查询到的记录数: {len(records)}")
+        logging.info(f"查询到记录数: {len(records)}")
     except exceptions.ClientRequestException as e:
-        print(f"获取记录失败: {e}")
         logging.error(f"获取记录失败: {e}")
         return
 
-    default_record = 无
+    default_record = None
     for r in records:
-        line = getattr(r, "line"， "") or getattr(r, "line_id", "")
-        if line 在 ("默认", "default", "default_view", ""):
+        line = getattr(r, "line", "") or getattr(r, "line_id", "")
+        if line in ("默认", "default", "default_view", ""):
             default_record = r
             break
 
@@ -114,13 +104,11 @@ def main():
 
             try:
                 client.update_record_set(update_req)
-                print(f"修改默认线路记录成功: {best_ips}")
-                logging.info(f"修改默认线路记录成功: {best_ips}")
+                logging.info(f"默认线路记录更新成功: {best_ips}")
             except exceptions.ClientRequestException as e:
-                print(f"修改默认线路记录失败: {e}")
-                logging.error(f"修改默认线路记录失败: {e}")
+                logging.error(f"默认线路记录更新失败: {e}")
         else:
-            print("IP 列表与默认线路已有记录一致，无需更新")
+            logging.info("优选 IP 与现有记录一致，无需更新")
     else:
         create_req_body = UpdateRecordSetReq(
             name=DOMAIN_NAME,
@@ -134,14 +122,11 @@ def main():
 
         try:
             client.create_record_set(create_req)
-            print(f"新增默认线路记录成功: {best_ips}")
             logging.info(f"新增默认线路记录成功: {best_ips}")
         except exceptions.ClientRequestException as e:
-            print(f"新增默认线路记录失败: {e}")
             logging.error(f"新增默认线路记录失败: {e}")
 
-    print(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - 脚本执行结束.")
-    logging.info("脚本执行结束")
+    logging.info("华为DNS 更新任务完成")
 
 if __name__ == "__main__":
     main()
