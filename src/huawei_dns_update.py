@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# 环境变量说明：HW_AK, HW_SK, HW_PROJECT_ID, HW_ZONE_ID
+# 环境变量说明：HW_AK, HW_SK, HW_PROJECT_ID, HW_ZONE_ID, HW_DOMAIN_NAME（必须带末尾点号）
 
 import os
 import time
@@ -24,7 +24,6 @@ config = configparser.ConfigParser()
 config.read(CONFIG_FILE, encoding='utf-8')
 
 api_port = config['API'].getint('port', 6788)
-
 API_IPS_URL = f"http://0.0.0.0:{api_port}/api/results"
 
 # ===== 环境变量配置 =====
@@ -33,7 +32,7 @@ SK = os.getenv("HW_SK")
 PROJECT_ID = os.getenv("HW_PROJECT_ID")
 REGION_NAME = "cn-east-3"
 ZONE_ID = os.getenv("HW_ZONE_ID")
-DOMAIN_NAME = os.getenv("HW_DOMAIN_NAME")
+DOMAIN_NAME = os.getenv("HW_DOMAIN_NAME")  # 例如 "cdn.example.com."
 RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 10
@@ -68,7 +67,7 @@ def main():
 
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
-        。with_credentials(creds) \
+        .with_credentials(creds) \
         .with_region(SimpleRegion(REGION_NAME)) \
         .build()
 
