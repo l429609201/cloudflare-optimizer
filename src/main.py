@@ -14,10 +14,10 @@ from .state import app_state
 from .api import create_app
 
 
-def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigParser) -> BackgroundScheduler:
+def setup_scheduler(optimizer: CloudflareOptimizer,config: configparser.ConfigParser) -> BackgroundScheduler:
     scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
 
-    optimize_cron = config.get('Scheduler', 'optimize_cron', fallback='0 */4 * * *')
+    optimize_cron = config.get('Scheduler','optimize_cron',fallback='0 */4 * * *')
     scheduler.add_job(
         optimizer.run_speed_test,
         trigger=CronTrigger.from_crontab(optimize_cron),
@@ -26,7 +26,7 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     )
     logging.info(f"已添加定时优选任务，Cron: {optimize_cron}")
 
-    heartbeat_cron = config.get('Scheduler', 'heartbeat_cron', fallback='*/5 * * * *')
+    heartbeat_cron = config.get('Scheduler','heartbeat_cron',fallback='*/5 * * * *')
     scheduler.add_job(
         lambda: check_best_ip(optimizer),
         trigger=CronTrigger.from_crontab(heartbeat_cron),
@@ -35,13 +35,13 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
     )
     logging.info(f"已添加心跳检测任务，Cron: {heartbeat_cron}")
 
-    dns_update_cron = config.get('Scheduler', 'dns_update_cron', fallback=None)
+    dns_update_cron = config.get('Scheduler','dns_update_cron',fallback=None)
     if dns_update_cron:
         def run_huawei_dns_update():
             try:
                 logging.info("华为DNS 更新任务启动")
                 result = subprocess.run(
-                    ["python3", "src/huawei_dns_update.py"],
+                    ["python3","src/huawei_dns_update.py"],
                     capture_output=True,
                     text=True,
                     check=False
@@ -69,14 +69,14 @@ def setup_scheduler(optimizer: CloudflareOptimizer, config: configparser.ConfigP
 
 
 def main() -> None:
-    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    CONFIG_DIR = os.path.join(PROJECT_ROOT, 'config')
-    CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, 'config.ini')
-    LOG_FILE_PATH = os.path.join(PROJECT_ROOT, 'app.log')
-    STATIC_DIR = os.path.join(PROJECT_ROOT, 'static')
-    TEMPLATE_DIR = os.path.join(PROJECT_ROOT, 'templates')
+    PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+    CONFIG_DIR = os.path.join(PROJECT_ROOT,'config')
+    CONFIG_FILE_PATH = os.path.join(CONFIG_DIR,'config.ini')
+    LOG_FILE_PATH = os.path.join(PROJECT_ROOT,'app.log')
+    STATIC_DIR = os.path.join(PROJECT_ROOT,'static')
+    TEMPLATE_DIR = os.path.join(PROJECT_ROOT,'templates')
 
-    os.makedirs(CONFIG_DIR, exist_ok=True)
+    os.makedirs(CONFIG_DIR,exist_ok=True)
 
     if not os.path.exists(CONFIG_FILE_PATH):
         logging.warning(f"配置文件未找到: {CONFIG_FILE_PATH}，将使用默认配置并创建文件.")
@@ -105,11 +105,11 @@ def main() -> None:
             'proxy': 'https://github.drny168.top/'
         }
         config['API'] = {'port': 6788}
-        with open(CONFIG_FILE_PATH, 'w', encoding='utf-8') as configfile:
+        with open(CONFIG_FILE_PATH,'w',encoding='utf-8') as configfile:
             config.write(configfile)
     else:
         config = configparser.ConfigParser()
-        config.read(CONFIG_FILE_PATH, encoding='utf-8')
+        config.read(CONFIG_FILE_PATH,encoding='utf-8')
 
     log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     root_logger = logging.getLogger()
@@ -118,7 +118,7 @@ def main() -> None:
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
 
-    file_handler = logging.FileHandler(LOG_FILE_PATH, mode='w', encoding='utf-8')
+    file_handler = logging.FileHandler(LOG_FILE_PATH,mode='w',encoding='utf-8')
     file_handler.setFormatter(log_formatter)
     root_logger.addHandler(file_handler)
 
@@ -126,7 +126,7 @@ def main() -> None:
     console_handler.setFormatter(log_formatter)
     root_logger.addHandler(console_handler)
 
-    optimizer = CloudflareOptimizer(config, config_dir=CONFIG_DIR)
+    optimizer = CloudflareOptimizer(config,config_dir=CONFIG_DIR)
 
     optimizer.download_and_extract_tool()
 
@@ -143,23 +143,23 @@ def main() -> None:
                 logging.warning("启动检查: result.csv 解析失败或为空，将执行一次新的IP优选.")
                 optimizer.run_speed_test()
 
-    initial_run_thread = threading.Thread(target=startup_check, name="StartupCheckThread")
+    initial_run_thread = threading.Thread(target=startup_check,name="StartupCheckThread")
     initial_run_thread.start()
 
-    app = create_app(optimizer, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
+    app = create_app(optimizer,template_folder=TEMPLATE_DIR,static_folder=STATIC_DIR)
 
-    scheduler = setup_scheduler(optimizer, config)
+    scheduler = setup_scheduler(optimizer,config)
 
     app.config['CONFIG'] = config
     app.config['SCHEDULER'] = scheduler
     app.config['CONFIG_FILE_PATH'] = CONFIG_FILE_PATH
     app.config['LOG_FILE_PATH'] = LOG_FILE_PATH
 
-    api_port = config['API'].getint('port', 6788)
+    api_port = config['API'].getint('port',6788)
     logging.info(f"API服务将在 http://0.0.0.0:{api_port} 上启动")
     try:
-        serve(app, host='0.0.0.0', port=api_port)
-    except (KeyboardInterrupt, SystemExit):
+        serve(app,host='0.0.0.0',port=api_port)
+    except (KeyboardInterrupt,SystemExit):
         logging.info("收到退出信号，正在关闭调度器...")
         scheduler.shutdown()
         logging.info("等待初次优选任务完成...")
@@ -168,6 +168,7 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+
 
 
 
