@@ -4,7 +4,6 @@
 # TG_BOT_TOKEN, TG_USER_ID（可选，用于通知）
 
 import os
-import time
 import logging
 import configparser
 import requests
@@ -87,6 +86,11 @@ def get_best_ips(limit=50):
 def main():
     logging.info("华为DNS 更新任务启动")
 
+    # 校验环境变量
+    if not all([AK, SK, PROJECT_ID, ZONE_ID, DOMAIN_NAME]):
+        logging.error("❌ 缺少必要的环境变量，请设置 HW_AK, HW_SK, HW_PROJECT_ID, HW_ZONE_ID, HW_DOMAIN_NAME")
+        return
+
     creds = BasicCredentials(AK, SK, PROJECT_ID)
     client = DnsClient.new_builder() \
         .with_credentials(creds) \
@@ -114,7 +118,7 @@ def main():
     default_record = 无
     for r in records:
         line = getattr(r, "line", "") or getattr(r, "line_id", "")
-        if line 在 ("默认", "default", "default_view", ""):
+        if line in ("默认", "default", "default_view", ""):
             default_record = r
             break
 
