@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# 依赖1. huaweicloudsdkcore	2. huaweicloudsdkdns
+# 依赖1. huaweicloudsdkcore  2. huaweicloudsdkdns
 
+import os
 import time
 import logging
 import requests
@@ -19,14 +20,13 @@ from huaweicloudsdkdns.v2.model import (
 # ===== 配置 =====
 AK = os.getenv("HW_AK")
 SK = os.getenv("HW_SK")
-PROJECT_ID = os.getenv("HW_PROJECT_ID")  # 华为云控制台DNS服务页面可查
+PROJECT_ID = os.getenv("HW_PROJECT_ID")
 REGION_NAME = "cn-east-3"
-ZONE_ID = os.getenv("HW_ZONE_ID")  # 你的Zone ID
+ZONE_ID = os.getenv("HW_ZONE_ID")
 DOMAIN_NAME = "cdn.akk.pp.ua."
 RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 10
-
 API_IPS_URL = "https://prdhbdkmqqke.sealosgzg.site/api/results"
 
 logging.basicConfig(
@@ -38,7 +38,7 @@ logging.basicConfig(
 class SimpleRegion:
     def __init__(self, name):
         self.name = name
-        self.id = name  # 华为SDK需要用到region.id
+        self.id = name
         self.endpoints = [f"https://dns.{name}.myhuaweicloud.com"]
 
 def get_best_ips(limit=50):
@@ -47,7 +47,7 @@ def get_best_ips(limit=50):
         resp.raise_for_status()
         data = resp.json()
         ips = [item.get("IP 地址") for item in data if item.get("IP 地址")]
-        ips = list(dict.fromkeys(ips))  # 去重
+        ips = list(dict.fromkeys(ips))
         logging.info(f"获取优选IP: {ips[:limit]}")
         print(f"获取优选IP: {ips[:limit]}")
         return ips[:limit]
@@ -86,9 +86,8 @@ def main():
         logging.error(f"获取记录失败: {e}")
         return
 
-    # 找默认线路记录，通常线路字段 line 为空或"default"表示默认线路
     default_record = 无
-    for r 在 records:
+    for r in records:
         line = getattr(r, "line"， "") or getattr(r, "line_id", "")
         if line 在 ("默认", "default", "default_view", ""):
             default_record = r
@@ -118,7 +117,6 @@ def main():
         else:
             print("IP 列表与默认线路已有记录一致，无需更新")
     else:
-        # 新增默认线路记录
         create_req_body = UpdateRecordSetReq(
             name=DOMAIN_NAME,
             type=RECORD_TYPE,
