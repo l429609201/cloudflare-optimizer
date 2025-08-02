@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# 依赖1. huaweicloudsdkcore	2. huaweicloudsdkdns
 
 import time
 import logging
@@ -18,15 +19,15 @@ from huaweicloudsdkdns.v2.model import (
 # ===== 配置 =====
 AK = os.getenv("HW_AK")
 SK = os.getenv("HW_SK")
-PROJECT_ID = os.getenv("HW_PROJECT_ID")
-ZONE_ID = os.getenv("HW_ZONE_ID")
+PROJECT_ID = os.getenv("HW_PROJECT_ID")  # 华为云控制台DNS服务页面可查
 REGION_NAME = "cn-east-3"
+ZONE_ID = os.getenv("HW_ZONE_ID")  # 你的Zone ID
 DOMAIN_NAME = "cdn.akk.pp.ua."
 RECORD_TYPE = "A"
 TTL = 300
 MAX_RECORDS = 10
 
-API_IPS_URL = "http://0.0.0.0/api/results"
+API_IPS_URL = "https://prdhbdkmqqke.sealosgzg.site/api/results"
 
 logging.basicConfig(
     filename="huawei_dns_sdk.log",
@@ -86,10 +87,10 @@ def main():
         return
 
     # 找默认线路记录，通常线路字段 line 为空或"default"表示默认线路
-    default_record = None
-    for r in records:
-        line = getattr(r, "line", "") or getattr(r, "line_id", "")
-        if line in ("默认", "default", "default_view", ""):
+    default_record = 无
+    for r 在 records:
+        line = getattr(r, "line"， "") or getattr(r, "line_id", "")
+        if line 在 ("默认", "default", "default_view", ""):
             default_record = r
             break
 
