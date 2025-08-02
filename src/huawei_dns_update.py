@@ -35,7 +35,7 @@ ZONE_ID = os.getenv("HW_ZONE_ID")
 DOMAIN_NAME = os.getenv("HW_DOMAIN_NAME")  # 例如 "cdn.example.com."
 RECORD_TYPE = "A"
 TTL = 300
-MAX_RECORDS = 10
+MAX_RECORDS = 5
 
 # ===== 日志配置（输出到 stdout）=====
 logging.basicConfig(
